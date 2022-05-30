@@ -1,6 +1,5 @@
 package com.view;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -10,12 +9,15 @@ import javax.swing.border.LineBorder;
 
 import com.dao.BookDao;
 import com.dao.BookTypeDao;
+import com.model.Book;
 import com.model.BookType;
 import com.util.DbUtil;
+import com.util.StringUtil;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
@@ -28,6 +30,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
+import javax.swing.DefaultComboBoxModel;
 
 public class BookAppInterFrm extends JFrame {
 
@@ -38,6 +41,8 @@ public class BookAppInterFrm extends JFrame {
 	private JTextField priceTxt;
 	private JComboBox bookTypeJcb;
 	private JTextArea bookDescTxt;
+	private JRadioButton manJrb;
+	private JRadioButton femaleJrb;
 	
 	private DbUtil dbUtil = new DbUtil();
 	private BookTypeDao bookTypeDao = new BookTypeDao();
@@ -82,12 +87,12 @@ public class BookAppInterFrm extends JFrame {
 		
 		JLabel lblNewLabel_2 = new JLabel("作者性别：");
 		
-		JRadioButton manJrb = new JRadioButton("男");
+		manJrb = new JRadioButton("男");
 		buttonGroup.add(manJrb);
 		manJrb.setSelected(true);
 		
-		JRadioButton femaleJbb = new JRadioButton("女");
-		buttonGroup.add(femaleJbb);
+		femaleJrb = new JRadioButton("女");
+		buttonGroup.add(femaleJrb);
 		
 		JLabel lblNewLabel_3 = new JLabel("图书价格：");
 		
@@ -111,6 +116,11 @@ public class BookAppInterFrm extends JFrame {
 		});
 		
 		JButton btnNewButton_1 = new JButton("重置");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetValueActionPerformed(e);
+			}
+		});
 		btnNewButton_1.setIcon(new ImageIcon(BookAppInterFrm.class.getResource("/images/reset.png")));
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
@@ -133,7 +143,7 @@ public class BookAppInterFrm extends JFrame {
 									.addGap(18)
 									.addComponent(manJrb)
 									.addGap(18)
-									.addComponent(femaleJbb)))
+									.addComponent(femaleJrb)))
 							.addGap(57)
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
 								.addGroup(gl_contentPane.createSequentialGroup()
@@ -169,7 +179,7 @@ public class BookAppInterFrm extends JFrame {
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblNewLabel_2)
 						.addComponent(manJrb)
-						.addComponent(femaleJbb)
+						.addComponent(femaleJrb)
 						.addComponent(lblNewLabel_3)
 						.addComponent(priceTxt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(34)
@@ -198,6 +208,15 @@ public class BookAppInterFrm extends JFrame {
 		fillBookType();
 		
 	}
+	
+	/**
+	 * 处置事件处理
+	 * @param e
+	 */
+	private void resetValueActionPerformed(ActionEvent e) {
+		this.resetValue();
+	}
+
 	/**
 	 * 图书添加事件处理
 	 * @param e
@@ -207,6 +226,72 @@ public class BookAppInterFrm extends JFrame {
 		String author = this.authorTxt.getText();
 		String price = this.priceTxt.getText();
 		String bookDesc = this.bookDescTxt.getText();
+		
+		if(StringUtil.isEmpty(bookName)) {
+			JOptionPane.showMessageDialog(null, "图书名称不能为空！");
+			return;
+		}
+		if(StringUtil.isEmpty(author)) {
+			JOptionPane.showMessageDialog(null, "作者名称不能为空！");
+			return;
+		}
+		if(StringUtil.isEmpty(price)) {
+			JOptionPane.showMessageDialog(null, "图书价格不能为空！");
+			return;
+		}
+		
+		String sex = "";
+		if(manJrb.isSelected()) {
+			sex = "男";
+		}else if(manJrb.isSelected()) {
+			sex = "女";
+		}
+		
+		BookType bookType =  (BookType) bookTypeJcb.getSelectedItem();
+		int bookTypeId = bookType.getId();
+		
+		Book book = new Book(bookName,author,sex,Float.parseFloat(price),bookTypeId,bookDesc);
+		
+		Connection con = null;
+		try {
+			con=dbUtil.getCon();
+			int addNum = bookDao.add(con, book);
+			
+			if(addNum == 1) {
+				JOptionPane.showMessageDialog(null, "图书添加成功！");
+				resetValue();
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "图书添加失败！");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "图书添加失败！");
+		} finally {
+			try {
+				dbUtil.close(con);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	/**
+	 * 重置表单
+	 */
+	private void resetValue() {
+		this.bookNameTxt.setText("");
+		this.authorTxt.setText("");
+		this.priceTxt.setText("");
+		this.manJrb.setSelected(true);
+		this.bookDescTxt.setText("");
+		//如果类别没选到就选择列表第一项
+		if(this.bookTypeJcb.getItemCount() >0) {
+			this.bookTypeJcb.setSelectedIndex(0);
+		}
 	}
 
 	/**
@@ -217,7 +302,7 @@ public class BookAppInterFrm extends JFrame {
 		BookType bookType = null;
 		try {
 			con = dbUtil.getCon();
-			ResultSet rs = bookTypeDao.list(con, new BookType());
+			ResultSet rs = bookTypeDao.list(con,new BookType());
 			while(rs.next()) {
 				bookType = new BookType();
 				bookType.setId(rs.getInt("id"));
@@ -227,12 +312,7 @@ public class BookAppInterFrm extends JFrame {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}finally {
-			try {
-				dbUtil.close(con);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
 		}
 	
 	}

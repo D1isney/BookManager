@@ -316,7 +316,6 @@ public class BookTypeManageInterFrm extends JInternalFrame {
 		idTxt.setText((String)bookTypeTable.getValueAt(row, 0));
 		bookTypeNameTxt.setText((String)bookTypeTable.getValueAt(row, 1));
 		bookTypeDescTxt.setText((String)bookTypeTable.getValueAt(row, 2));
-		
 	}
 
 	/**
@@ -324,10 +323,11 @@ public class BookTypeManageInterFrm extends JInternalFrame {
 	 * @param evt
 	 */
 	private void bookTypeSearchActionPerformed(ActionEvent evt) {
-		String s_bookTypeName =this.s_bookTypeNameTxt.getText();
+		String s_bookTypeName = this.s_bookTypeNameTxt.getText();
 		BookType bookType = new BookType();
 		bookType.setBookTypeName(s_bookTypeName);
 		this.fillTable(bookType);
+		
 	}
 	
 	/**
@@ -336,9 +336,9 @@ public class BookTypeManageInterFrm extends JInternalFrame {
 	 */
 	private void fillTable(BookType bookType) {
 		DefaultTableModel dtm = (DefaultTableModel) bookTypeTable.getModel();
-		dtm.setRowCount(0);//设置成0行
 		Connection con = null;
-		bookType.setBookTypeName("");
+		dtm.setRowCount(0);//设置成0行
+//		bookType.setBookTypeName("");
 		try {
 			con = dbUtil.getCon();
 			ResultSet rs =  bookTypeDao.list(con, bookType);

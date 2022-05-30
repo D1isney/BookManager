@@ -26,7 +26,7 @@ public class StringUtil {
 	 * @return
 	 */
 	public static boolean isNoEmpty(String str) {
-		if(str == null && !"".equals(str.trim())) {
+		if(str != null && !"".equals(str.trim())) {
 			return true;
 		}
 		else {

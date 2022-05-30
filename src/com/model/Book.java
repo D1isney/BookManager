@@ -15,6 +15,21 @@ public class Book {
 	private String bookTypeName;//图书类名名称
 	private String bookDesc;//备注
 	
+	public Book() {
+		super();
+	}
+	
+	public Book(String bookName, String author, String sex, Float price, Integer bookTypeId, String bookDesc) {
+		super();
+		this.bookName = bookName;
+		this.author = author;
+		this.sex = sex;
+		this.price = price;
+		this.bookTypeId = bookTypeId;
+		this.bookDesc = bookDesc;
+	}
+
+
 	public int getId() {
 		return id;
 	}

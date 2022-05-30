@@ -34,11 +34,11 @@ public class BookType {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getBookTypeName() {
-		return bookTypeName;
-	}
 	public void setBookTypeName(String bookTypeName) {
 		this.bookTypeName = bookTypeName;
+	}
+	public String getBookTypeName() {
+		return bookTypeName;
 	}
 	public String getBookTypeDesc() {
 		return bookTypeDesc;

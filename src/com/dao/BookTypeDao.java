@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.JOptionPane;
+
 import com.model.BookType;
 import com.util.StringUtil;
 
@@ -38,8 +40,8 @@ public class BookTypeDao {
 	 */
 	public ResultSet list(Connection con,BookType bookType)throws Exception {
 		StringBuffer sb = new StringBuffer("select * from t_booktype");
-		if(StringUtil.isEmpty(bookType.getBookTypeName())) {
-			sb.append(" and bookTypeName like '%" + bookType.getBookTypeName()+"%'");
+		if(StringUtil.isNoEmpty(bookType.getBookTypeName())) {
+			sb.append(" and bookTypeName like '%"+ bookType.getBookTypeName()+"%'");
 		}
 		PreparedStatement pstmt = con.prepareStatement(sb.toString().replaceFirst("and", "where"));
 		return pstmt.executeQuery();

@@ -2,8 +2,12 @@ package com.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.swing.JOptionPane;
 
 import com.model.Book;
+import com.util.StringUtil;
 
 /**
  * 图书Dao类
@@ -29,4 +33,25 @@ public class BookDao {
 		return pstmt.executeUpdate();
 	}
 	
+	/**
+	 * 图书信息查询
+	 * @param con
+	 * @param book
+	 * @return
+	 * @throws Exception
+	 */
+	public ResultSet list(Connection con,Book book)throws Exception {
+		StringBuffer sb = new StringBuffer("select * from t_book b,t_booktype bt where b.bookTypeId=bt.id");
+		if(StringUtil.isNoEmpty(book.getBookName())) {
+			sb.append(" and b.bookName like '%"+book.getBookName()+"%'");
+		}
+		if(StringUtil.isNoEmpty(book.getAuthor())) {
+			sb.append(" and b.author like '%"+book.getAuthor()+"%'");
+		}
+		if(book.getBookTypeId() != null && book.getBookTypeId() != -1) {
+			sb.append("and b.bookTypeId="+book.getBookTypeId());
+		}
+		PreparedStatement pstmt = con.prepareStatement(sb.toString().replaceFirst("and", "where"));
+		return pstmt.executeQuery();
+	}
 }
