@@ -1,40 +1,41 @@
 package com.view;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.Vector;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import com.dao.BookDao;
 import com.dao.BookTypeDao;
 import com.model.BookType;
 import com.util.DbUtil;
 import com.util.StringUtil;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JTextArea;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
 public class BookTypeManageInterFrm extends JInternalFrame {
 	private JTable bookTypeTable;
 	private DbUtil dbUtil = new DbUtil();
+	private BookDao bookdao=new BookDao();
 	private BookTypeDao bookTypeDao = new BookTypeDao();
 	private JTextField s_bookTypeNameTxt;
 	private JTextField idTxt;
@@ -140,7 +141,7 @@ public class BookTypeManageInterFrm extends JInternalFrame {
 		JButton btnNewButton_2 = new JButton("删除");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				bookTypeDeleteActionEvent(e);
+					bookTypeDeleteActionEvent(e);
 			}
 		});
 		btnNewButton_2.setIcon(new ImageIcon(BookTypeManageInterFrm.class.getResource("/images/delete.png")));
@@ -230,11 +231,10 @@ public class BookTypeManageInterFrm extends JInternalFrame {
 	/**
 	 * 图书类别删除处理
 	 * @param e
+	 * @throws Exception 
 	 */
-	private void bookTypeDeleteActionEvent(ActionEvent evt) {
+	private void bookTypeDeleteActionEvent(ActionEvent evt){
 		String id = idTxt.getText();
-		String bookTypeName = bookTypeNameTxt.getText();
-		String bookTypeDesc = bookTypeDescTxt.getText();
 		if(StringUtil.isEmpty(id)) {
 			JOptionPane.showMessageDialog(null, "请选择要删除的数据");
 			return;
@@ -244,6 +244,12 @@ public class BookTypeManageInterFrm extends JInternalFrame {
 			Connection con = null;
 			try {
 				con = dbUtil.getCon();
+				boolean flag = bookdao.existBookByBookTypeId(con, id);
+				if(flag) {
+					JOptionPane.showMessageDialog(null, "当前类别下有图书，不能删除此类别！");
+					return;
+				}
+				
 				int deleteNum = bookTypeDao.delete(con, id);
 				if(deleteNum == 1) {
 					JOptionPane.showMessageDialog(null, "删除成功！");
